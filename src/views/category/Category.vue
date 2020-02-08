@@ -1,36 +1,7 @@
 <template>
     <div class="wrapper">
         <ul class="content">
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
-            <li>列表</li>
-            <li>列别</li>
+           
             <li>列表</li>
             <li>列别</li>
             <li>列表</li>
