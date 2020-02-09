@@ -3,6 +3,11 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control :titles="titles" 
+                    v-show="isTabFixed"
+                    @tabClick="tabClick" 
+                    ref="tabControl1" 
+                    class="tab-control-top"/>
     <scroll class="main" ref="scroll" 
     :probe-type="3" 
     @scroll="contentScroll"
@@ -11,7 +16,10 @@
       <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends" />
       <feature-view />
-      <tab-control :titles="titles" class="tab-control" @tabClick="tabClick" ref="tabControl"/>
+      <tab-control :titles="titles" 
+                    
+                    @tabClick="tabClick" 
+                    ref="tabControl2" />
       <goods-list :goods="showGoods" />
     </scroll>
     <back-top @click.native="backClick" v-show="isActive" />
@@ -55,7 +63,11 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isActive: false
+      isActive: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      leavePosition: 0,
+      itemImageListener: 0
     };
   },
   computed: {
@@ -80,10 +92,27 @@ export default {
   },
   mounted() {
     const refresh = debounce(this.$refs.scroll.refresh, 50);
+    this.itemImageListener = () => {
+      // this.$refs.wrapper.refresh();
+      refresh();
+    }
     this.$bus.$on("itemimgLoad", () => {
       // this.$refs.wrapper.refresh();
       refresh();
     });
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.leavePosition);
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    // 1.记录离开时的位置
+    this.leavePosition = this.$refs.scroll.getScrollY()
+    // console.log(this.leavePosition);
+
+    // 2.取消全局事件的监听
+    this.$bus.$off('itemimgLoad', this.itemImageListener)
+    
   },
   methods: {
     /**
@@ -101,13 +130,22 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0);
     },
     contentScroll(position) {
+      // 1.判断BackTop是否显示
       // console.log(position);
       this.isActive = position.y < -1000;
+
+      // 2.决定tabControl是否吸顶(position: fixed)
+      this.isTabFixed = (-position.y)> this.tabOffsetTop
+
+      
+      
     },
     getMore() {
         //加载更多数据
@@ -118,7 +156,7 @@ export default {
         
     },
     swiperImageLoad() {
-      console.log(this.$refs.tabControl.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
       
     },
 
@@ -127,7 +165,7 @@ export default {
      */
     getHomeMultidata() {
       getHomeMultidata().then(res => {
-        console.log(res.data);
+        // console.log(res.data);
 
         this.banners = res.data.banner.list;
         this.recommends = res.data.recommend.list;
@@ -136,7 +174,7 @@ export default {
     getHomeGoods(type) {
       const page = this.goods[type].page + 1;
       getHomeGoods(type, page).then(res => {
-        console.log(res);
+        // console.log(res);
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
 
@@ -150,18 +188,20 @@ export default {
 
 <style scoped>
 #home {
-  padding-top: 44px;
+  /* padding-top: 44px; */
   position: relative;
   height: 100vh;
 }
 .home-nav {
   background-color: var(--color-tint);
   color: aliceblue;
-  position: fixed;
+  position: relative;
+  /* 在浏览器使用原生滚动时，为了让导航不跟随一起滚动而设置 */
+  /* position: fixed;
   left: 0;
   right: 0;
-  top: 0;
-  z-index: 9;
+  top: 0;*/
+  z-index: 99; 
 }
 .tab-control {
   /* 吸顶效果  */
@@ -170,6 +210,13 @@ export default {
   z-index: 9;
   background-color: #fff;
 }
+.tab-control-top{
+  position: fixed;
+  z-index: 9;
+  
+  right: 0;
+  left: 0;
+}
 .main {
   position: absolute;
   top: 44px;
@@ -177,4 +224,5 @@ export default {
   right: 0;
   left: 0;
 }
+
 </style>

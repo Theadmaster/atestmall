@@ -10,12 +10,12 @@
         <img slot="item-icon-selected" src="~assets/img/tabbar/choose_selected.svg" alt="">
         <div slot="item-text">分类</div>
       </tab-bar-item>
-      <tab-bar-item path="cart">
+      <tab-bar-item path="/cart">
         <img slot="item-icon" src="~assets/img/tabbar/cart.svg" alt="">
         <img slot="item-icon-selected" src="~assets/img/tabbar/cart_selected.svg" alt="">
         <div slot="item-text">购物车</div>
       </tab-bar-item>
-      <tab-bar-item path="profile">
+      <tab-bar-item path="/profile">
         <img slot="item-icon" src="~assets/img/tabbar/mine.svg" alt="">
         <img slot="item-icon-selected" src="~assets/img/tabbar/mine_selected.svg" alt="">
         <div slot="item-text">我的</div>
