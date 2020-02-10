@@ -69,7 +69,7 @@ export default {
 }
 .shop-logo img {
   
-  width: 55px;
+  width: 50px;
 
 }
 .shop-img {
@@ -81,6 +81,7 @@ export default {
   height: 60px;
   border-radius: 60px;
   border: 1px solid rgb(192, 190, 190);
+  overflow: hidden;
 }
 .shop-name {
   line-height: 90px;

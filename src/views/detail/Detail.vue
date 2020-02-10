@@ -1,16 +1,21 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav" @goto="goto" />
-    <scroll class="content" ref="scroll" >
+    <detail-nav-bar class="detail-nav" @goto="goto" 
+    ref="nav" />
+    
+    <scroll class="content" ref="scroll" @scroll="positionScroll" :probe-type="3">
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
       <detail-goods-info :detail-info="detailInfo" @imgload="imgLoad" />
       <detail-param-info ref="param" :param-info="paramInfo" />
-      <detail-comment-info ref="comment" :add-cart="addCart" :comment-info="commentInfo" />
+      <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <goods-list :goods="recommends" ref="recommend" />
     </scroll>
-    <detail-bottom-bar />
+    <back-top @click.native="backClick" v-show="isActive" />
+    <detail-bottom-bar @addCart="addToCart"/>
+
+    
   </div>
 </template>
 
@@ -28,6 +33,9 @@ import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
 
 import { debounce } from "common/utils";
+import { backTopMixin } from "common/mixin"
+
+
 
 import {
   getDetail,
@@ -51,6 +59,7 @@ export default {
     DetailBottomBar,
     GoodsList
   },
+  mixins: [backTopMixin],
   data() {
     return {
       iid: null,
@@ -62,7 +71,8 @@ export default {
       commentInfo: {},
       recommends: [],
       themeTopYs: [],
-      getThemeTopY: null
+      getThemeTopY: null,
+      realPosition: 0
     };
   },
   created() {
@@ -71,7 +81,7 @@ export default {
 
     // 2.根据iid请求详情数据
     getDetail(this.iid).then(res => {
-      console.log(res);
+      // console.log(res);
       // 1.获取顶部的图片轮播数据
       const data = res.result;
       this.topImages = data.itemInfo.topImages;
@@ -82,7 +92,7 @@ export default {
         data.columns,
         data.shopInfo.services
       );
-      console.log(this.goods);
+      // console.log(this.goods);
 
       // 3.创建店铺信息
       this.shop = new Shop(data.shopInfo);
@@ -116,7 +126,7 @@ export default {
     });
     // 3.请求推荐数据
     getRecommend().then(res => {
-      console.log(res);
+      // console.log(res);
       this.recommends = res.data.list;
     });
     this.getThemeTopY = debounce(() => {
@@ -125,7 +135,10 @@ export default {
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
 
-      console.log(this.themeTopYs);
+      //取最大值 为了下面的positionScroll 
+      // Number.MAX_VALUE为js最大值
+      this.themeTopYs.push(Number.MAX_VALUE);
+      // console.log(this.themeTopYs);
     }, 100);
 
     
@@ -137,8 +150,41 @@ export default {
 
       this.getThemeTopY();
     },
-    addCart() {},
-    
+    addToCart() {
+      // 1.获取购物车需要展示的信息
+      const product = {}
+      product.image = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.realPrice
+      product.iid = this.iid
+
+      // 2.将商品添加到购物车里
+      this.$store.dispatch('addCart', product)
+    },
+    positionScroll(position) {
+
+      this.isActive = position.y < -1000;
+      // console.log(this.$refs.param.$el.offsetTop);
+      
+      const positionY = -position.y
+      for(let i=0; i<this.themeTopYs.length-1; i++ ) { //i 为 str
+        // if ((this.realPosition != i) && ((i<3 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1])
+        //  || (i>2 && positionY >= this.themeTopYs[i]))) {
+        //    this.realPosition = i
+        //   //  console.log(this.realPosition);
+        //     this.$refs.nav.currentIndex = this.realPosition
+        // }
+        if ((this.realPosition != i) && 
+        (positionY >= this.themeTopYs[i] &&
+         positionY < this.themeTopYs[i+1])) {
+           this.realPosition = i
+          //  console.log(this.realPosition);
+            this.$refs.nav.currentIndex = this.realPosition
+        }
+      }
+      
+    },
     
     goto(option) {
       // switch(option) {

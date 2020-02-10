@@ -42,6 +42,7 @@ export default {
   right: 0;
   display: flex;
   text-align: center;
+  z-index: 101;
 }
 .left {
   width: 50%;
@@ -50,6 +51,7 @@ export default {
 .right {
     flex:1;
   display: flex;
+  /* line-height: 49px; */
 }
 .left .icon {
   display: block;
