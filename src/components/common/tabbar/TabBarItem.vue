@@ -40,7 +40,7 @@ export default {
       }
 
       
-      console.log('itemClick');
+      // console.log('itemClick');
       
     }
   }

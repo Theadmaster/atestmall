@@ -14,7 +14,7 @@
     </scroll>
     <back-top @click.native="backClick" v-show="isActive" />
     <detail-bottom-bar @addCart="addToCart"/>
-
+    
     
   </div>
 </template>
@@ -32,9 +32,11 @@ import DetailBottomBar from "./childComps/DetailBottomBar";
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
 
+
 import { debounce } from "common/utils";
 import { backTopMixin } from "common/mixin"
 
+import {mapActions} from 'vuex'
 
 
 import {
@@ -57,7 +59,8 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailBottomBar,
-    GoodsList
+    GoodsList,
+    
   },
   mixins: [backTopMixin],
   data() {
@@ -73,6 +76,7 @@ export default {
       themeTopYs: [],
       getThemeTopY: null,
       realPosition: 0
+      
     };
   },
   created() {
@@ -145,6 +149,7 @@ export default {
   },
   updated() {},
   methods: {
+    ...mapActions(['addCart']),
     imgLoad() {
       this.$refs.scroll.refresh();
 
@@ -159,8 +164,14 @@ export default {
       product.price = this.goods.realPrice
       product.iid = this.iid
 
-      // 2.将商品添加到购物车里
-      this.$store.dispatch('addCart', product)
+      // 2.将商品添加到购物车里(1.Promise 2.mapActions)
+      this.$store.dispatch('addCart', product).then(res => {
+        this.$toast.show(res, 1500)
+      })
+
+      // this.addcart(product).then(res => {
+      //   console.log(res);
+      // })
     },
     positionScroll(position) {
 
