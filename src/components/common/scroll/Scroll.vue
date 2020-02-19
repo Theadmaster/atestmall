@@ -42,7 +42,7 @@ export default {
     this.scroll.on("pullingUp", () => {
       this.$emit("pullingUp");
     });
-    // 监听上拉事件
+    // 监听上拉事件 
     // this.scroll.on('pullingUp', () => {
     //     // console.log('上拉加载更多数据');
     //     // 发送网络请求
